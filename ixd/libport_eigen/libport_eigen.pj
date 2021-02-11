@@ -1,0 +1,11 @@
+@=
+projectName="libport_eigen";
+projectType="application";
+projectGUID="F87324A1-9A97-42A6-9817-A0080E4B507E";
+addIncDirs=[INPUT_DIR."/../../ext/eigen"];
+addProjectDirs=[CGV_DIR."/plugins", CGV_DIR."/libs", CGV_DIR."/3rd"];
+addProjectDeps=[
+"cgv_utils","cgv_type","cgv_data","cgv_base", 
+"cgv_signal", "cgv_reflect", "cgv_media", "cgv_os", 
+"cgv_math","cgv_gui", "cgv_render", "cmi_io", "cg_fltk", "crg_grid", "cg_ext", "cgv_gl"
+];

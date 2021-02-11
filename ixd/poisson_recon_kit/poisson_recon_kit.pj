@@ -1,0 +1,7 @@
+@=
+projectType="library";
+projectName="poisson_recon_kit";
+projectGUID="D8C3FE4E-A7E0-4D97-99E8-0D5C4810A753";
+addIncDirs=[INPUT_DIR];
+addSharedDefines=["POISSON_RECON_EXPORTS"];
+

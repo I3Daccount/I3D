@@ -1,0 +1,5 @@
+//show all
+
+//name(main):state="fullscreen(2)"
+name(main):selected="vr_emulator"
+
