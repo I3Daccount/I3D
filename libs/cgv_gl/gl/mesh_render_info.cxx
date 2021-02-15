@@ -47,6 +47,7 @@ void mesh_render_info::construct_vbos_base(
 		perm_ptr = new std::vector<idx_type>();
 		mesh.sort_faces(*perm_ptr, sort_by_groups, sort_by_materials);
 	}
+	// vertex_indices is the merged one, indexing the unique_triples
 	mesh.merge_indices(vertex_indices, unique_triples, &include_tex_coords, &include_normals);
 	nr_vertices = unique_triples.size();
 	mesh.extract_triangle_element_buffer(vertex_indices, triangle_element_buffer, perm_ptr, mesh.get_nr_materials() > 0 ? &material_primitive_start : 0);
@@ -54,6 +55,7 @@ void mesh_render_info::construct_vbos_base(
 		delete perm_ptr;
 		perm_ptr = 0;
 	}
+	// triangle_element_buffer
 	nr_triangle_elements = triangle_element_buffer.size();
 	mesh.extract_wireframe_element_buffer(vertex_indices, edge_element_buffer);
 	nr_edge_elements = edge_element_buffer.size();

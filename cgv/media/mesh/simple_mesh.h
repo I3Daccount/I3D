@@ -153,7 +153,7 @@ public:
 	const std::vector<vec3>& get_positions() const { return positions; }
 
 	/// add a new normal and return normal index
-	idx_type new_normal(const vec3& n) { normals.push_back(n); return idx_type(normals.size()-1); }
+	idx_type new_normal(const vec3& n) { normals.push_back(n); return idx_type(normals.size() - 1); }
 	/// access to normals
 	bool has_normals() const { return get_nr_normals() > 0; }
 	idx_type get_nr_normals() const { return idx_type(normals.size()); }
@@ -169,64 +169,111 @@ public:
 	const vec2& tex_coord(idx_type ti) const { return tex_coords[ti]; }
 	/// compute per face normals (ensure that per corner normal indices are set correspondingly)
 	void compute_face_normals();
-	
+
 	void compute_ray_mesh_intersections(vec3 ray);
 
 	void randomize_texcoordi();
 
 	// p1 and p2 are corresp. points 
-	void compute_texcoordi(float rx, float ry, float h, quat alignq, vec3 alignt)
+	void compute_texcoordi(float rx, float ry, float rz, vec3 camera_intrinsic)
 	{
 		tex_coords.clear();
 		tex_coord_indices.clear();
 		for (int i = 0; i < get_nr_positions(); i++) {
 
-			vec3 cposi_1 = vec3(0, 0, 0);
-			quat q_1(-0.9999385663968424, 0.010694446357222644, 0.002913979700329364, 3.1165314188749525e-05);
+		vec3 cposi_1 = vec3(0, 0, 0);
+		quat q_1(-0.9999385663968424, 0.010694446357222644, 0.002913979700329364, 3.1165314188749525e-05);
 
-			vec3 cposi_2 = vec3(-5.25745261382357, -6.25186680269724, -0.00572032780798151);
-			quat q_2(-0.998471406259843, 0.0012813314616936773, 0.004791197678897108, 0.055047738336842185);
+		vec3 cposi_2 = vec3(-5.25745261382357, -6.25186680269724, -0.00572032780798151);
+		quat q_2(-0.998471406259843, 0.0012813314616936773, 0.004791197678897108, 0.055047738336842185);
 
-			// choose which to test 
-			vec3 camposi = cposi_1;
-			quat camq = q_1;
+		vec3 cposi_3 = vec3(-11.372755480459, -10.2836719679026, -0.000375695328008629);
+		quat q_3(-0.9908034418640084, 0.006686899799069564, 0.0050330476422138885, 0.13504996628264998);
 
-			// translation only: align leica with the cgv coordinates 
-			quat rotz = quat(vec3(0, 0, 1), 25 * M_PI / 180);
-			quat rotx = quat(vec3(1, 0, 0), -90 * M_PI / 180);
-			quat r_align = rotx * rotz;
-			r_align.rotate(camposi);
-			camposi += vec3(0, 0.6 + h, 0); // height is not accurate
-			//camq = r_align * camq;
 
-			// rotation: camera space alignment
-			quat alinmentq_x = quat(vec3(1, 0, 0), rx * M_PI / 180);
-			//quat interal_alinmentq = quat();
-			quat interal_alinmentq = quat(vec3(0, 1, 0), (-115 + ry) * M_PI / 180);
-			//quat alinmentq_z = quat(vec3(0, 0, 1), rz * M_PI / 180);
-			//camq = alinmentq_x * alinmentq_y * camq;
-			camq = alinmentq_x * alignq * interal_alinmentq * camq;
-			//camposi += alignt;
+		// choose which to test 
+		vec3 camposi = cposi_1;
+		quat camq = q_1;
 
-			// compute camera-to-point direction
-			vec3 pdir = positions.at(i) - camposi;
-			pdir.normalize();
-			camq.rotate(pdir);
+		// translation only: align leica with the cgv coordinates 
+		quat rotz = quat(vec3(0, 0, 1), 25 * M_PI / 180);
+		quat rotx = quat(vec3(1, 0, 0), -90 * M_PI / 180);
+		quat r_align = rotx * rotz;
+		r_align.rotate(camposi);
+		//camposi += vec3(0, h, 0);
+		camq = r_align * camq * r_align.inverse();
 
-			// reject some points with normal information 
-			/*if (dot(pdir, normals.at(i)) < 0) {
-				tex_coords.push_back(vec2(-1.-1));
-				continue;
-			}*/
-			// from pdir to uv  
-			float u = atan2(pdir.x(), pdir.z()) / (2 * M_PI) + 0.5;
-			float v = pdir.y() * 0.5 + 0.5;
-			tex_coords.push_back(vec2(1-u, v));
+		// camera space alignment
+		quat alinmentq_x = quat(vec3(1, 0, 0), rx * M_PI / 180);
+		quat alinmentq_y = quat(vec3(0, 1, 0), (-115 + ry) * M_PI / 180);// 115 = 90 + 25 
+		quat alinmentq_z = quat(vec3(0, 0, 1), rz * M_PI / 180);
+		camq = alinmentq_x * alinmentq_y * alinmentq_z * camq;
+
+		// compute camera-to-point direction
+		vec3 pdir = positions.at(i) - camposi;
+		pdir.y() = camera_intrinsic.y() * pdir.y() + camera_intrinsic.z(); // internal camera parameter
+		pdir.normalize();
+		camq.rotate(pdir);
+
+		// reject some points with normal information 
+		// control by face selection 
+		if (dot(pdir, normals.at(i)) < 0.6) {
+			tex_coords.push_back(vec2(-1, -1));
+			continue;
 		}
-		for (int i = 0; i < get_nr_corners(); i++) {
-			tex_coord_indices.push_back(position_indices.at(i));
+
+		// from pdir to uv  
+		float u = atan2(pdir.x(), pdir.z()) / (2 * M_PI) + 0.5;
+		float v = pdir.y() * 0.5 + 0.5;
+		tex_coords.push_back(vec2(1 - u, v));
+	}
+	for (int i = 0; i < get_nr_corners(); i++) {
+		tex_coord_indices.push_back(position_indices.at(i));
+	}
+}
+
+	void coordi_correction_leica() {
+		for (int i = 0; i < get_nr_positions(); i++) {
+			positions.at(i) = positions.at(i) - vec3(0, 1, 0);
 		}
 	}
+
+	void pick_face(vec3 p) {
+		
+		//for (int pi = 0; pi < positions.size(); pi++) {
+		//	set_color(pi, rgb(1, 0, 0));
+		//}
+		
+		std::vector<vec3> points_per_face;
+		for (int fidx = 0; fidx < faces.size(); fidx++) {
+			// each face 
+			idx_type pidx_1 = position_indices.at(faces.at(fidx));
+			idx_type pidx_2 = position_indices.at(faces.at(fidx) + 1);
+			idx_type pidx_3 = position_indices.at(faces.at(fidx) + 2);
+
+			vec3 p_1 = positions.at(pidx_1);
+			vec3 p_2 = positions.at(pidx_2);
+			vec3 p_3 = positions.at(pidx_3);
+
+			//set_color(pidx_1, rgb(1, 1, 0));
+			//set_color(pidx_2, rgb(1, 1, 0));
+			//set_color(pidx_3, rgb(1, 1, 0));
+
+			vec3 face_n = (normals.at(pidx_1) + normals.at(pidx_1) + normals.at(pidx_1)) / 3.0;
+
+			if (dot(cross(p_2 - p_1, p - p_1), face_n) >= 0){
+				if (dot(cross(p_3 - p_2, p - p_2), face_n) >= 0) {
+					if (dot(cross(p_1 - p_3, p - p_3), face_n) >= 0) {
+						// inside! change color! 
+						set_color(pidx_1, rgb(1, 1, 0));
+						set_color(pidx_2, rgb(1, 1, 0));
+						set_color(pidx_3, rgb(1, 1, 0));
+					}
+				}
+			}
+		}
+	}
+
 	/// Conway ambo operator
 	void ambo();
 	/// Conway truncate operator

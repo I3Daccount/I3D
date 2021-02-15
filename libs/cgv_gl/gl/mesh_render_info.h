@@ -68,13 +68,16 @@ public:
 	void construct(cgv::render::context& ctx, cgv::media::mesh::simple_mesh<T>& mesh)
 	{
 		// construct render buffers
+		// all we want is to construct vbos, 2 vbos are there: vertices and indices. pay attention to ref_vbos()[0],[1]
 		std::vector<idx_type> vertex_indices;
 		std::vector<vec3i> unique_triples;
-		std::vector<idx_type> triangle_element_buffer;
-		std::vector<idx_type> edge_element_buffer;
+		std::vector<idx_type> triangle_element_buffer; // indices stores here? where can we change color indecies? 
+		std::vector<idx_type> edge_element_buffer; // 
+		// construct triangles + merge indices 
 		construct_vbos_base(ctx, mesh, vertex_indices, unique_triples, triangle_element_buffer, edge_element_buffer);
 		std::vector<T> attrib_buffer;
 		color_increment = mesh.extract_vertex_attribute_buffer(vertex_indices, unique_triples, include_tex_coords, include_normals, attrib_buffer, &include_colors);
+		// ref_vbos()[0]
 		ref_vbos().push_back(new cgv::render::vertex_buffer(cgv::render::VBT_VERTICES));
 		ref_vbos().back()->create(ctx, attrib_buffer);
 		element_size = sizeof(T);

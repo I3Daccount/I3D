@@ -87,7 +87,7 @@ void simple_mesh_base::merge_indices(std::vector<idx_type>& indices, std::vector
 		auto iter = corner_to_index.find(triple);
 		// determine vertex index
 		idx_type vi;
-		if (iter == corner_to_index.end()) {
+		if (iter == corner_to_index.end()) { // cg1 slide 03 page 23 
 			vi = idx_type(unique_triples.size());
 			corner_to_index[triple] = vi;
 			unique_triples.push_back(c);
@@ -309,6 +309,12 @@ public:
 			color<float, RGB> tmp_color;
 			mesh.put_color(i, tmp_color);
 			os << "vc " << tmp_color << std::endl;
+		}
+		bool gen_pervertexcolors = true;
+		if (gen_pervertexcolors) {
+			for (int i = 0; i < mesh.positions.size(); i++) {
+				os << "vc " << "0 1 0" << std::endl;
+			}
 		}
 
 		bool tcs = mesh.position_indices.size() == mesh.tex_coord_indices.size();
@@ -535,7 +541,7 @@ unsigned simple_mesh<T>::extract_vertex_attribute_buffer(
 			data_ptr += 3;
 		}
 		if (include_colors) {
-			put_color(t[0], data_ptr);
+			put_color(t[0], data_ptr); // color index just the same as position index: per vertex color 
 			data_ptr += color_increment;
 		}
 	}

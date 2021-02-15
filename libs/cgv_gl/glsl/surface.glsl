@@ -256,7 +256,7 @@ vec4 compute_reflected_appearance_texture(vec3 position_eye, vec3 normal_eye, ve
 	}
 	Material M = material;
 	update_material_color_and_transparency(M.diffuse_reflectance, M.transparency, side, color);
-	if (use_texture)
+	if (use_texture) //texcoords.x > 0 && texcoords.y > 0
 		update_material_from_texture(M, texcoords);
 	//else
 		//M.diffuse_reflectance = color.rgb;
