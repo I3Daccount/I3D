@@ -217,7 +217,7 @@ public:
 
 		// reject some points with normal information 
 		// control by face selection 
-		if (dot(pdir, normals.at(i)) < 0.6) {
+		if (dot(pdir, normals.at(i)) < 0.2) {
 			tex_coords.push_back(vec2(-1, -1));
 			continue;
 		}
