@@ -1401,7 +1401,7 @@ bool gl_context::check_gl_error(const std::string& where, const cgv::render::ren
 	if (eid == GL_NO_ERROR)
 		return false;
 	std::string error_string = where + ": " + std::string((const char*)gluErrorString(eid));
-	error(error_string, rc);
+	//error(error_string, rc);
 	return true;
 }
 

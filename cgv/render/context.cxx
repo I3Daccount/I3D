@@ -1061,6 +1061,53 @@ void context::tesselate_unit_prism(bool flip_normals, bool edges)
 	}
 }
 
+/// tesselate a circular disk of radius 1, with range check and radius 
+void context::tesselate_flexible_disk(int resolution, float min_phi, float max_phi, float r, bool flip_normals, bool edges)
+{
+	std::vector<float> V; 
+	std::vector<float> N;
+	std::vector<float> T;
+
+	std::vector<int> F;
+	int i;
+	
+	N.push_back(0);
+	N.push_back(0);
+	N.push_back(1);
+	T.push_back(0);
+	T.push_back(0);
+	V.push_back(0);
+	V.push_back(0);
+	V.push_back(0);
+
+	float step = float(2 * M_PI / resolution);
+	float phi = 0;
+	int num_real_points = 1;
+	for (i = 0; i <= resolution; ++i, phi += step) {
+		if (phi > min_phi && phi < max_phi) {
+			float cp = cos(phi);
+			float sp = sin(phi);
+			N.push_back(0);
+			N.push_back(0);
+			N.push_back(1);
+			T.push_back((float)i / resolution);
+			T.push_back(1);
+			V.push_back(r * cp);
+			V.push_back(r * sp);
+			V.push_back(0);
+			num_real_points++;
+		}
+	}
+
+	for (i = 0; i < num_real_points; ++i)
+		F.push_back(i);
+
+	if (edges)
+		draw_edges_of_faces(&V[0], &N[0], &T[0], &F[0], &F[0], &F[0], 1, num_real_points, flip_normals);
+	else
+		draw_faces(&V[0], &N[0], &T[0], &F[0], &F[0], &F[0], 1, num_real_points, flip_normals);
+}
+
 /// tesselate a circular disk of radius 1
 void context::tesselate_unit_disk(int resolution, bool flip_normals, bool edges)
 {

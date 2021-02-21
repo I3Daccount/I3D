@@ -1016,6 +1016,8 @@ public:
 	virtual void tesselate_box(const cgv::media::axis_aligned_box<double, 3>& B, bool flip_normals, bool edges = false) const;
 	/// tesselate a prism 
 	void tesselate_unit_prism(bool flip_normals = false, bool edges = false);
+
+	void tesselate_flexible_disk(int resolution, float min_phi, float max_phi, float r, bool flip_normals, bool edges);
 	/// tesselate a circular disk of radius 1
 	void tesselate_unit_disk(int resolution = 25, bool flip_normals = false, bool edges = false);
 	/// tesselate a cone of radius 1
