@@ -120,13 +120,18 @@ void simple_mesh_base::extract_triangle_element_buffer(
 			for (idx_type ci = begin_corner(fj); ci < end_corner(fj); ++ci)
 				triangle_element_buffer.push_back(vertex_indices.at(ci));
 		}
-		else {
+		else { // prob? 
 			// in case of non triangular faces do simplest triangulation approach that assumes convexity of faces
 			for (idx_type ci = begin_corner(fj) + 2; ci < end_corner(fj); ++ci) {
 				triangle_element_buffer.push_back(vertex_indices.at(begin_corner(fj)));
 				triangle_element_buffer.push_back(vertex_indices.at(ci - 1));
 				triangle_element_buffer.push_back(vertex_indices.at(ci));
 			}
+			//for (idx_type ci = begin_corner(fj); ci <= end_corner(fj)-2; ++ci) {
+			//	triangle_element_buffer.push_back(ci);
+			//	triangle_element_buffer.push_back(ci + 1);
+			//	triangle_element_buffer.push_back(ci + 2);
+			//}
 		}
 	}
 }
