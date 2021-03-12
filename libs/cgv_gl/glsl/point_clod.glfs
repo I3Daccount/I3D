@@ -1,0 +1,16 @@
+#version 150
+
+in vec2 uv;
+in vec4 color_fs;
+
+
+//***** begin interface of fragment.glfs ***********************************
+uniform float gamma = 2.2;
+void finish_fragment(vec4 color);
+//***** end interface of fragment.glfs ***********************************
+
+
+void main()
+{
+	finish_fragment(color_fs);	
+}

@@ -78,12 +78,15 @@ namespace cgv { // @<
 				bool res;
 				vertex_buffer*& vbo_ptr = vbos[loc];
 				if (vbo_ptr) {
-					if (vbo_ptr->get_size_in_bytes() == array_descriptor_traits <T>::get_size(array))
-						res = vbo_ptr->replace(ctx, 0, array_descriptor_traits <T>::get_address(array), array_descriptor_traits < T>::get_nr_elements(array));
+					/*if (vbo_ptr->get_size_in_bytes() == array_descriptor_traits <T>::get_size(array)) {
+						res = vbo_ptr->replace(ctx, 0, array_descriptor_traits <T>::get_address(array), 
+							array_descriptor_traits < T>::get_nr_elements(array));
+					}	
 					else {
 						vbo_ptr->destruct(ctx);
 						res = vbo_ptr->create(ctx, array);
-					}
+					}*/
+					res = true;
 				}
 				else {
 					vbo_ptr = new vertex_buffer();
