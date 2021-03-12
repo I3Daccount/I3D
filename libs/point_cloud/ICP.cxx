@@ -665,6 +665,8 @@ namespace cgv {
 			//	return false;
 			//}
 
+			return true;
+
 		}
 
 		float ICP::dis_pts(const Pnt& source_p, const Pnt& target_p)

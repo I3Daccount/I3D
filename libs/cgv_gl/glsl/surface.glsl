@@ -2,7 +2,7 @@
 
 uniform int illumination_mode = 2;
 uniform bool sRGBA_textures = true;
-uniform bool use_texture = true;;
+uniform bool use_texture = true;
 
 uniform sampler2D tex0;
 uniform sampler2D tex1;

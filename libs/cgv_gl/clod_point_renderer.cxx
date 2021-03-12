@@ -1105,7 +1105,7 @@ namespace cgv {
 						child->min = childBox.get_min_pnt();
 						child->max = childBox.get_max_pnt();
 						child->name = childName;
-						child->children.resize(8);
+						child->children.resize(8); 
 
 						currentNode->children[index] = child;
 						currentNode = child.get();
@@ -1443,13 +1443,20 @@ namespace cgv {
 
 			glGenVertexArrays(1, &vertex_array);
 			glBindVertexArray(vertex_array);
-			//position 
 			glBindBuffer(GL_ARRAY_BUFFER, render_buffer);
+
+			//position, ori: 4
 			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)0);
 			glEnableVertexAttribArray(0);
 			//color
 			glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Point), (void*)(sizeof(Point::position)));
 			glEnableVertexAttribArray(1);
+			//normal 
+			/*glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 
+				sizeof(Point), 
+				(void*)(sizeof(Point::position) + sizeof(Point::colors) + sizeof(Point::level))
+			);*/
+			glEnableVertexAttribArray(2);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
@@ -1506,11 +1513,11 @@ namespace cgv {
 			//draw_prog.set_uniform(ctx, "use_group_point_size", prs.use_group_point_size);
 			float pixel_extent_per_depth = (float)(2.0 * tan(0.5 * 0.0174532925199 * y_view_angle) / ctx.get_height());
 			draw_prog.set_uniform(ctx, "pixel_extent_per_depth", pixel_extent_per_depth);
-			//draw_prog.set_uniform(ctx, "blend_width_in_pixel", prs.blend_width_in_pixel);
-			//draw_prog.set_uniform(ctx, "percentual_halo_width", 0.01f * prs.percentual_halo_width);
-			//draw_prog.set_uniform(ctx, "halo_width_in_pixel", prs.halo_width_in_pixel);
-			//draw_prog.set_uniform(ctx, "halo_color", prs.halo_color);
-			//draw_prog.set_uniform(ctx, "halo_color_strength", prs.halo_color_strength);
+			draw_prog.set_uniform(ctx, "blend_width_in_pixel", 1);
+			draw_prog.set_uniform(ctx, "percentual_halo_width", 0);
+			draw_prog.set_uniform(ctx, "halo_width_in_pixel", 0);
+			draw_prog.set_uniform(ctx, "halo_color", vec4(0.6,0.6,0,1));
+			draw_prog.set_uniform(ctx, "halo_color_strength", 0.5);
 			return true;
 		}
 

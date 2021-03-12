@@ -17,13 +17,12 @@ uniform float controller_effect_range;
 uniform bool enable_acloud_effect;
 uniform bool enable_headset_culling;
 
-in float point_size;
 in vec4 position;
 in vec3 normal;
 in vec4 color;
 in uint color_index;
-
 in int group_index;
+in float point_size;
 
 out vec3 normal_gs;
 out vec4 color_gs;
@@ -55,8 +54,8 @@ void main()
 		//gl_PointSize = group_point_sizes[group_index];
 	//}
 	//else {
-		gl_PointSize = point_size;
 	//}
+	gl_PointSize = point_size;
 
 	// initialize with not ignore 
 	ignore = 0;

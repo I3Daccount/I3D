@@ -2,11 +2,13 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec4 color;
+layout(location = 2) in vec3 normal;
 
 out vec4 color_gs;
 out float point_size_gs;
 out float radius_gs;
 out float linear_depth_gs;
+out vec3 normal_gs;
 
 uniform float CLOD;
 uniform float scale;
@@ -99,4 +101,6 @@ void main()
 	point_size_gs = gl_PointSize;
 
 	gl_PointSize *= 0.8;
+
+	normal_gs = normal;
 }

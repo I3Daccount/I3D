@@ -40,6 +40,7 @@ namespace cgv {
 				vec3 position;
 				rgb8 colors;
 				uint8_t level = 0; //LOD
+				vec3 normals;
 			};
 			
 		private:
@@ -109,6 +110,15 @@ namespace cgv {
 			void set_colors(const context& ctx, const std::vector<T>& colors) {				
 				for (int i = 0; i < input_buffer_data.size(); ++i) {
 					input_buffer_data[i].colors = rgb8(colors[i]);
+				}
+				buffers_outofdate = true;
+			}
+
+			// set point normals
+			template<typename T>
+			void set_normals(const context& ctx, const std::vector<T>& normals) {
+				for (int i = 0; i < input_buffer_data.size(); ++i) {
+					input_buffer_data[i].normals = vec3(normals[i]);
 				}
 				buffers_outofdate = true;
 			}

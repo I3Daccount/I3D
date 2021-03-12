@@ -1,0 +1,95 @@
+#version 150
+
+//uniform bool use_group_point_size;
+//uniform float group_point_sizes[250];
+//uniform bool use_color_index;
+//uniform vec4 palette[64]; // todo: can be optimized
+
+//
+uniform vec3 headset_position;
+uniform vec3 headset_direction;
+uniform float headset_culling_range;
+
+uniform vec3 left_controller_position;
+uniform vec3 right_controller_position;
+uniform float controller_effect_range;
+
+uniform bool enable_acloud_effect;
+uniform bool enable_headset_culling;
+
+uniform float point_size = 1;
+
+in vec3 position;
+in vec3 color;
+in vec3 normal;
+//in float point_size;
+//in uint color_index;
+//in int group_index;
+
+out vec3 normal_gs;
+out vec4 color_gs;
+out float ignore;
+
+//***** begin interface of view.glsl ***********************************
+mat4 get_modelview_matrix();
+mat4 get_projection_matrix();
+mat4 get_modelview_projection_matrix();
+mat4 get_inverse_modelview_matrix();
+mat4 get_inverse_modelview_projection_matrix();
+mat3 get_normal_matrix();
+mat3 get_inverse_normal_matrix();
+//***** end interface of view.glsl ***********************************
+
+
+void main()
+{
+/*
+	// initialize with not ignore 
+	ignore = 0;
+
+	// culling with headset 
+	// if not ignored, continue
+	if(ignore < 0.5){ // if not ignored
+		if(enable_headset_culling){
+			if(
+				(distance(position.xyz,headset_position)>headset_culling_range) 
+				|| (dot(normalize(position.xyz-headset_position),normalize(headset_direction))<0.5)
+			){
+				ignore = 1;
+			}
+			else 
+				ignore = 0;				
+		}else{
+			ignore = 0;
+		}
+	}
+
+	// compare with controller position 
+	// if not ignored, continue
+	if(ignore < 0.5){ 
+		if(enable_acloud_effect){
+			if(distance(position.xyz,right_controller_position)<controller_effect_range){
+				ignore = 1;
+			}
+			else 
+				ignore = 0;				
+		}else{
+			ignore = 0;
+		}
+	}
+	
+	// if not ignored, continue
+	if(ignore < 0.5){ 
+		// 
+		color_gs = vec4(color,1);
+		normal_gs = normal;
+		gl_Position = vec4(position,1);
+	}
+*/
+
+	ignore = 0;
+	color_gs = vec4(color,1);
+	normal_gs = normal;
+	gl_Position = vec4(position,1);
+	gl_PointSize = point_size;
+}
