@@ -1,0 +1,45 @@
+#version 330
+
+//***** begin interface of view.glsl ***********************************
+mat4 get_modelview_projection_matrix();
+//***** end interface of view.glsl ***********************************
+
+uniform vec3 headset_position;
+uniform vec3 headset_direction;
+uniform float headset_culling_range;
+uniform bool enable_headset_culling = false;
+
+layout(location = 0) in vec4 position;
+layout(location = 1) in vec4 color;
+
+out vec4 color_gs;
+out float ignore;
+
+void main()
+{
+
+	// initialize with not ignore 
+	ignore = 0;
+
+	// culling with headset 
+	if(ignore < 0.5){ // if not ignored
+		if(enable_headset_culling){
+			if(
+				(distance(position.xyz,headset_position)>headset_culling_range) 
+				|| (dot(normalize(position.xyz-headset_position),normalize(headset_direction))<0.5)
+			){
+				ignore = 1;
+			}
+			else 
+				ignore = 0;				
+		}else{
+			ignore = 0;
+		}
+	}
+
+	//if(ignore < 0.5){ // if not ignored
+		color_gs = color;
+		// transform vertex to clip space
+		gl_Position = get_modelview_projection_matrix()*position;
+	//}
+}

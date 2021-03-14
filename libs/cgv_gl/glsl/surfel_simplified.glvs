@@ -43,7 +43,7 @@ mat3 get_inverse_normal_matrix();
 
 void main()
 {
-/*
+///*
 	// initialize with not ignore 
 	ignore = 0;
 
@@ -84,12 +84,17 @@ void main()
 		color_gs = vec4(color,1);
 		normal_gs = normal;
 		gl_Position = vec4(position,1);
+		gl_PointSize = point_size;
 	}
-*/
+//*/
+
+/*
 
 	ignore = 0;
 	color_gs = vec4(color,1);
 	normal_gs = normal;
 	gl_Position = vec4(position,1);
 	gl_PointSize = point_size;
+
+*/
 }

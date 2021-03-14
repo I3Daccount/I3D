@@ -1,0 +1,6 @@
+files:point_vr
+vertex_file:view.glsl
+geometry_file:view.glsl
+geometry_file:splat.glsl
+geometry_file:side.glsl
+fragment_file:fragment.glfs

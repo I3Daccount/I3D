@@ -1,0 +1,167 @@
+#version 150
+
+uniform bool use_group_point_size;
+//uniform float group_point_sizes[250];
+uniform bool use_color_index;
+//uniform vec4 palette[64]; // todo: can be optimized
+
+
+//
+uniform vec3 headset_position;
+uniform vec3 headset_direction;
+uniform float headset_culling_range;
+
+uniform vec3 left_controller_position;
+uniform vec3 right_controller_position;
+uniform float controller_effect_range;
+
+uniform bool enable_acloud_effect;
+uniform bool enable_headset_culling;
+uniform bool visual_delete = false;
+uniform bool render_with_original_color = true;
+
+in vec4 position;
+in vec3 normal;
+in vec4 color;
+in uint color_index;
+in int group_index;
+in float point_size;
+
+out vec3 normal_gs;
+out vec4 color_gs;
+out float ignore;
+
+//***** begin interface of view.glsl ***********************************
+mat4 get_modelview_matrix();
+mat4 get_projection_matrix();
+mat4 get_modelview_projection_matrix();
+mat4 get_inverse_modelview_matrix();
+mat4 get_inverse_modelview_projection_matrix();
+mat3 get_normal_matrix();
+mat3 get_inverse_normal_matrix();
+//***** end interface of view.glsl ***********************************
+
+//***** begin interface of group.glsl ***********************************
+vec4 group_color(in vec4 color, int group_index);
+vec3 group_transformed_position(in vec3 position, int group_index);
+vec3 group_transformed_normal(in vec3 nml, int group_index);
+void right_multiply_group_normal_matrix(inout mat3 NM, int group_index);
+void right_multiply_group_position_matrix(inout mat4 PM, int group_index);
+void right_multiply_group_normal_matrix_and_rotation(inout mat3 NM, int group_index, vec4 rotation);
+void right_multiply_group_position_matrix_and_rigid(inout mat4 PM, int group_index, vec4 rotation, vec3 translation);
+//***** end interface of group.glsl ***********************************
+
+// color constant
+vec4 palette[45] = vec4[](
+	vec4(0.5,0.5,0.5,1),
+	vec4(1,1,0.5,1),
+	vec4(0,0,1,1),
+	vec4(1,0,0,1),
+	vec4(0.996815,0.961756,0.993593,1),
+	vec4(0.241852,0.970925,0.9684,1),
+	vec4(0.982999,0.973534,0.753255,1),
+	vec4(0.536838,0.198876,0.96145,1),
+	vec4(0.367326,0.820252,0.818295,1),
+	vec4(0.479585,0.104305,0.227698,1),
+	vec4(0.675787,0.924162,0.201218,1),
+	vec4(0.963543,0.890588,0.812987,1),
+	vec4(0.818136,0.690167,0.553296,1),
+	vec4(0.864216,0.425165,0.132141,1),
+	vec4(0.713224,0.940594,0.290732,1),
+	vec4(0.781966,0.458865,0.710862,1),
+	vec4(0.527283,0.768819,0.766583,1),
+	vec4(0.68993,0.479879,0.453004,1),
+	vec4(0.371722,0.254068,0.256479,1),
+	vec4(0.12865,0.817552,0.735442,1),
+	//
+	vec4(0.885186,0.349231,0.384895,1),
+	vec4(0.187419,0.234203,0.141554,1),
+	vec4(0.839713,0.841112,0.994662,1),
+	vec4(0.38539,0.212664,0.725346,1),
+	vec4(0.54153,0.9552,0.787375,1),
+	vec4(0.49487,0.697245,0.131001,1),
+	vec4(0.289188,0.443403,0.213307,1),
+	vec4(0.81568,0.146095,0.788965,1),
+	vec4(0.467858,0.268185,0.132797,1),
+	vec4(0.501028,0.51219,0.540788,1),
+	vec4(0.814578,0.681682,0.538812,1),
+	vec4(0.779218,0.928787,0.738428,1),
+	vec4(0.735197,0.348423,0.826778,1),
+	vec4(0.689588,0.102537,0.711732,1),
+	vec4(0.679565,0.246351,0.739634,1),
+	vec4(0.548528,0.51043,0.207098,1),
+	vec4(0.616379,0.96377,0.796525,1),
+	vec4(0.626741,0.889082,0.406347,1),
+	vec4(0.115997,0.301431,0.827358,1),
+	vec4(0.329586,0.839121,0.77614,1),
+	vec4(0.946067,0.555361,0.838757,1),
+	vec4(0.901813,0.4714,0.729169,1),
+	vec4(0.622861,0.963362,0.480849,1),
+	vec4(0.224762,0.242252,0.592494,1),
+	vec4(0.30714,0.234365,0.785558,1)
+);
+
+unsigned int original_color_idx = 1u;
+unsigned int deleting_idx = 2u;
+
+void main()
+{
+	//if (use_group_point_size) {
+		//gl_PointSize = group_point_sizes[group_index];
+	//}
+	//else {
+	//}
+	gl_PointSize = point_size;
+
+	// initialize with not ignore 
+	ignore = 0;
+
+	// culling with headset 
+	if(ignore < 0.5){ // if not ignored
+		if(enable_headset_culling){
+			if(
+				(distance(position.xyz,headset_position)>headset_culling_range) 
+				|| (dot(normalize(position.xyz-headset_position),normalize(headset_direction))<0.5)
+			){
+				ignore = 1;
+			}
+			else 
+				ignore = 0;				
+		}else{
+			ignore = 0;
+		}
+	}
+
+	// compare with controller position 
+	if(ignore < 0.5){ // if not ignored
+		if(enable_acloud_effect){
+			if(distance(position.xyz,right_controller_position)<controller_effect_range){
+				ignore = 1;
+			}
+			else 
+				ignore = 0;				
+		}else{
+			ignore = 0;
+		}
+	}
+
+	if(ignore < 0.5){ // if not ignored 
+		if (use_color_index){
+			if(color_index == original_color_idx && render_with_original_color) // with original color 
+				color_gs = color; 
+			else if(color_index == deleting_idx && visual_delete) // deleting, todo: with confirm 
+				ignore = 1;
+			else
+				color_gs = group_color(vec4(palette[color_index]), group_index);
+		}
+		else
+			color_gs = color;
+			//group_color(color, group_index);
+		if(ignore < 0.5){
+			normal_gs = group_transformed_normal(normal, group_index);
+			gl_Position = vec4(group_transformed_position(position.xyz, group_index), 1.0);	
+		}
+	}
+
+	ignore = 0;
+}

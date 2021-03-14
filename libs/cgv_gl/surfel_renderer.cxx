@@ -70,7 +70,7 @@ namespace cgv {
 		{
 			bool res = renderer::init(ctx);
 			if (!ref_prog().is_created()) {
-				if (!ref_prog().build_program(ctx, "surfel.glpr", true)) {
+				if (!ref_prog().build_program(ctx, "surfel_vr.glpr", true)) {
 					std::cerr << "ERROR in surfel_renderer::init() ... could not build program surfel.glpr" << std::endl;
 					return false;
 				}
@@ -83,7 +83,7 @@ namespace cgv {
 			const surfel_render_style& srs = get_style<surfel_render_style>();
 			bool res;
 			if (!srs.use_group_color) {
-				if (has_indexed_colors) {
+				/*if (has_indexed_colors) {
 					if (has_colors)
 						ctx.error("surfel_renderer::validate_attributes() both point color and color index attributes set, using color index");
 					bool tmp = has_colors;
@@ -91,7 +91,7 @@ namespace cgv {
 					res = surface_renderer::validate_attributes(ctx);
 					has_colors = tmp;
 				}
-				else
+				else*/
 					res = surface_renderer::validate_attributes(ctx);
 			}
 			else
@@ -124,6 +124,7 @@ namespace cgv {
 			if (ref_prog().is_linked()) {
 				if (!has_point_sizes)
 					ref_prog().set_attribute(ctx, "point_size", srs.point_size);
+				// 
 				ref_prog().set_uniform(ctx, "use_color_index", has_indexed_colors);
 				ref_prog().set_uniform(ctx, "measure_point_size_in_pixel", srs.measure_point_size_in_pixel);
 				ref_prog().set_uniform(ctx, "reference_point_size", reference_point_size);

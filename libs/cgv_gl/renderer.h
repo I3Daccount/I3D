@@ -99,6 +99,7 @@ namespace cgv { // @<
 				bool res;
 				vertex_buffer*& vbo_ptr = vbos[loc];
 				if (vbo_ptr) {
+					// change here to enable/disable changes directly visible to gpu
 					if (vbo_ptr->get_size_in_bytes() == nr_elements * sizeof(T))
 						res = vbo_ptr->replace(ctx, 0, array_ptr, nr_elements);
 					else {
