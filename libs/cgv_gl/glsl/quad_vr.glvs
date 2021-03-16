@@ -19,6 +19,12 @@ uniform bool enable_headset_culling;
 
 uniform float point_size = 1;
 
+uniform int which_effect_righthand = 0;
+uniform int which_effect_lefthand = 0;
+uniform int which_effect_headset = 0;
+
+uniform float collapse_tantheta = 0.577;
+
 in vec3 position;
 in vec3 color;
 in vec3 normal;
@@ -43,9 +49,10 @@ mat3 get_inverse_normal_matrix();
 
 void main()
 {
-///*
 	// initialize with not ignore 
 	ignore = 0;
+	bool position_changed = false;
+	bool color_changed = false;
 
 	// culling with headset 
 	// if not ignored, continue
@@ -67,34 +74,53 @@ void main()
 	// compare with controller position 
 	// if not ignored, continue
 	if(ignore < 0.5){ 
-		if(enable_acloud_effect){
+		/*fake deleting*/ 
+		if(which_effect_righthand == 0){
 			if(distance(position.xyz,right_controller_position)<controller_effect_range){
 				ignore = 1;
+				color_gs = vec4(color,1);
 			}
-			else 
-				ignore = 0;				
+			else {
+				// do nothing 
+				//ignore = 0;	
+			}	
+
+		/*fake selection*/ 
+		}else if(which_effect_righthand == 1){
+			if(distance(position.xyz,right_controller_position)<controller_effect_range){
+				color_gs = vec4(1,1,0,1); // yellow when selecting 
+				color_changed = true;
+			}
+			else {
+				// do nothing 
+				//ignore = 0;	
+			}	
+
+		/*linear melting*/ 
+		}else if(which_effect_righthand == 2){
+			if(distance(position.xyz,right_controller_position)<controller_effect_range){
+				vec3 p0 = vec3(position.x,0,position.z);
+				vec3 p1 = vec3(right_controller_position.x,0,right_controller_position.z);
+				float distance_xz = distance(p0,p1);
+				if(distance_xz<controller_effect_range){
+					gl_Position = vec4(position,1);
+					gl_Position.y -= (controller_effect_range - distance_xz) * collapse_tantheta;
+					position_changed = true;
+				}
+			}
 		}else{
-			ignore = 0;
+			// 
 		}
 	}
 	
 	// if not ignored, continue
 	if(ignore < 0.5){ 
 		// 
-		color_gs = vec4(color,1);
 		normal_gs = normal;
-		gl_Position = vec4(position,1);
+		if(!color_changed) // if changed, do not overwrite 
+			color_gs = vec4(color,1);
+		if(!position_changed)
+			gl_Position = vec4(position,1);
 		gl_PointSize = point_size;
 	}
-//*/
-
-/*
-
-	ignore = 0;
-	color_gs = vec4(color,1);
-	normal_gs = normal;
-	gl_Position = vec4(position,1);
-	gl_PointSize = point_size;
-
-*/
 }

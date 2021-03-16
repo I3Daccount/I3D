@@ -1,4 +1,4 @@
-files:surfel_simplified
+files:quad_vr
 vertex_file:view.glsl
 vertex_file:group.glsl
 vertex_file:quaternion.glsl
