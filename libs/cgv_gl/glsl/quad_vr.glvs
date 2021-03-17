@@ -24,13 +24,24 @@ uniform int which_effect_lefthand = 0;
 uniform int which_effect_headset = 0;
 
 uniform float collapse_tantheta = 0.577;
+uniform bool colorize_with_scan_index = true;
+
+uniform bool renderScan0 = true;
+uniform bool renderScan1 = true;
+uniform bool renderScan2 = true;
+uniform bool renderScan3 = true;
+uniform bool renderScan4 = true;
+uniform bool renderScan5 = true;
 
 in vec3 position;
 in vec3 color;
 in vec3 normal;
+in int index;
 //in float point_size;
 //in uint color_index;
 //in int group_index;
+in int scanindex;
+// u can not give default value here 
 
 out vec3 normal_gs;
 out vec4 color_gs;
@@ -53,6 +64,57 @@ void main()
 	ignore = 0;
 	bool position_changed = false;
 	bool color_changed = false;
+
+	// visual deletion
+	if(ignore < 0.5){
+		if(index == 2)
+			ignore = 1;
+	}
+
+	/*rendering settings related to scan index */
+	if(!renderScan0 && (scanindex == 0))
+		ignore = 1;
+	if(!renderScan1 && (scanindex == 1))
+		ignore = 1;
+	if(!renderScan2 && (scanindex == 2))
+		ignore = 1;
+	if(!renderScan3 && (scanindex == 3))
+		ignore = 1;
+	if(!renderScan4 && (scanindex == 4))
+		ignore = 1;
+	if(!renderScan5 && (scanindex == 5))
+		ignore = 1;
+
+	if(ignore < 0.5){
+		if(colorize_with_scan_index){
+			if(!color_changed){
+				if(scanindex == 0){
+					color_gs = vec4(1,0,0,1);
+					color_changed = true;
+				}
+				if(scanindex == 1){
+					color_gs = vec4(0,1,0,1);
+					color_changed = true;
+				}
+				if(scanindex == 2){
+					color_gs = vec4(0,0,1,1);
+					color_changed = true;
+				}
+				if(scanindex == 3){
+					color_gs = vec4(1,1,0,1);
+					color_changed = true;
+				}
+				if(scanindex == 4){
+					color_gs = vec4(1,0,1,1);
+					color_changed = true;
+				}
+				if(scanindex == 5){
+					color_gs = vec4(0,1,1,1);
+					color_changed = true;
+				}	
+			}
+		}
+	}
 
 	// culling with headset 
 	// if not ignored, continue
@@ -88,8 +150,10 @@ void main()
 		/*fake selection*/ 
 		}else if(which_effect_righthand == 1){
 			if(distance(position.xyz,right_controller_position)<controller_effect_range){
-				color_gs = vec4(1,1,0,1); // yellow when selecting 
-				color_changed = true;
+				if(!color_changed){
+					color_gs = vec4(1,1,0,1); // yellow when selecting 
+					color_changed = true;
+				}
 			}
 			else {
 				// do nothing 

@@ -55,6 +55,22 @@ const pose_event::mat3x4& pose_event::get_pose_matrix() const
 {
 	return reinterpret_cast<const mat3x4&>(pose[0]);
 }
+/// todo:not finished 
+//const pose_event::mat4& pose_event::get_pose_matrix_as_mat4() const
+//{
+//	/*!
+//	- pose[0..2]  ... x-axis pointing to the right
+//	- pose[3..5]  ... y-axis pointing up
+//	- pose[6..8]  ... z-axis pointing backwards
+//	- pose[9..11] ... location of trackable's origin
+//	*/
+//	float tmppose[16];
+//	tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[9];
+//	tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[10];
+//	tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[11];
+//	tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = pose[0]; tmppose[0] = 1;
+//	return reinterpret_cast<const mat4&>(tmppose[0]);
+//}
 /// return current orientation quaternion
 pose_event::quat pose_event::get_quaternion() const
 {
